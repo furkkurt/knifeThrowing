@@ -1,4 +1,4 @@
-class scene extends Phaser.Scene{
+class tutorial extends Phaser.Scene{
   constructor(){
     super("tutorial")
   }
@@ -51,7 +51,7 @@ class scene extends Phaser.Scene{
 
     //Get values from player
     this.rotSpeed = this.xSpeed = this.ySpeed = 0;
-    this.viusalValue = this.add.line(0,0,20,20,30,20,0xff0000);
+    this.viusalValue = this.add.line(0,0,0,0,0,0,0x000000);
     this.setForces = this.time.addEvent({
       delay: 20,
       callback:() =>{
@@ -59,7 +59,7 @@ class scene extends Phaser.Scene{
         this.viusalValue = this.add.line(0,0,game.input.activePointer.worldX*2,game.input.activePointer.worldY,this.knife.x, this.knife.y ,0x000000, .5).setDepth(1.5);
         this.xSpeed = ((this.player.x - game.input.activePointer.x)+200)*this.weight*8;
         this.ySpeed = ((game.input.activePointer.y - this.player.y)-400)*this.weight;
-      }, loop: true,
+      }, loop: true, paused: true
     });
     this.increaseRotSpeed = this.time.addEvent({
       delay: this.weight*50,
@@ -76,19 +76,27 @@ class scene extends Phaser.Scene{
     this.screen.alpha = 0.01;
     //Pointer down (set x and y velocities and start increasing rotation speed value)
     this.screen.on("pointerdown", () => {
-      this.setForces.paused=true;
-      this.viusalValue.strokeColor = 0xff0000;
-      this.viusalValue.strokeAlpha = 0;
-      this.increaseRotSpeed.paused = false;
+      if(!this.setForces.paused || this.viusalValue.strokeColor==0x000000){
+        this.increaseRotSpeed.paused=true;
+        this.setForces.paused = false;
+      }
+      else {
+        this.increaseRotSpeed.paused = true;
+        this.throw();
+        this.screen.setVisible(false);
+      }
     });
     //Pointer up (stop increasing rotation speed value and execute throw function)
-    this.screen.on("pointerup", ()=>{
-      this.increaseRotSpeed.paused = true;
-      this.throw();
-      this.screen.setVisible(false);
-      if(this.tutorText != undefined)
-        this.tutorText.setVisible(false);
-    });
+    this.time.addEvent({delay: 250, callback:() =>{
+      this.screen.on("pointerup", ()=>{
+        this.setForces.paused = true;
+        this.increaseRotSpeed.paused = false;
+        if(this.tutorText != undefined)
+          this.tutorText.setVisible(false);
+      this.viusalValue.strokeColor = 0xff0000;
+      this.viusalValue.strokeAlpha = 0;
+      });
+    }})
 
 
     //Rotate knife
@@ -129,8 +137,20 @@ class scene extends Phaser.Scene{
         this.knife.setVelocity(0);
         this.knife.setGravity(0);
         this.sound.play("stick");
-        if(this.knife.rotation<.2 && this.knife.rotation>-.2)
-          this.add.text(188, 400, "PERFECT!", {color: "yellow"}).setScrollFactor(0).setDepth(1.5);
+        if(this.knife.rotation<.2 && this.knife.rotation>-.2){
+          this.perfectText = this.add.text(188, 400, "PERFECT!", {color: "yellow"}).setScrollFactor(0).setDepth(1.5);
+          this.time.addEvent({
+            delay: 2000,
+            callback:() =>{
+              this.time.addEvent({
+                delay: 20,
+                callback:() =>{
+                  this.perfectText.alpha -= .01;
+                }, repeat: 100
+              })
+            }
+          })
+        };
         //Don't complete the level if the collision takes place in tutorial scene
         if(!this.tutor)
           this.levelCompleteFade.paused = false;
@@ -231,7 +251,7 @@ class scene extends Phaser.Scene{
           }, repeat: this.tutorContext4.length});
         }});
         //Text 5
-        this.time.addEvent({delay: 17000, callback:() =>{
+        this.time.addEvent({delay: 19000, callback:() =>{
           this.sound.play("swosh", {volume:1.5});
           this.tutorText.y += 5;
           this.xSpeedText.setVisible(true);
@@ -251,7 +271,7 @@ class scene extends Phaser.Scene{
           }})
         }});
         //Text 6
-        this.time.addEvent({delay: 21000, callback:() =>{
+        this.time.addEvent({delay: 23000, callback:() =>{
           this.tutorText.setText("");
           this.i = 0;
           this.time.addEvent({

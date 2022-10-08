@@ -30,6 +30,6 @@ class preloader extends Phaser.Scene {
     if(localStorage.getItem("knife") == undefined)
       localStorage.setItem("knife", 1)
 
-    this.scene.start("tutorial");
+    this.scene.start("menu");
   }
 }
