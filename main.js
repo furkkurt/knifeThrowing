@@ -9,7 +9,7 @@ var config = {
       default: 'arcade',
     arcade: {debug: false}
   },
-  scene:[preloader, tutorial, menu, levels],
+  scene:[preloader, tutorial, menu, levels, level],
   pixelArt: true,
 };
 

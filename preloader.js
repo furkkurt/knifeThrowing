@@ -7,11 +7,13 @@ class preloader extends Phaser.Scene {
     this.load.image("tileset", "./assets/images/tile.png");
     this.load.atlas("tide", "./assets/images/tide.png", "./assets/json/tide.json");
     this.load.image("knife1", "./assets/images/knife1.png");
-    this.load.tilemapTiledJSON("tutorial", "./assets/json/tutorial.json");
     this.load.audio("swosh", "./assets/audio/swosh.mp3");
     this.load.audio("stick", "./assets/audio/stick.mp3");
     this.load.audio("blop", "./assets/audio/blop.mp3");
     this.load.audio("seaAmbiance", "./assets/audio/seaAmbiance.mp3");
+    
+    this.load.tilemapTiledJSON("tutorial", "./assets/json/tutorial.json");
+    this.load.tilemapTiledJSON("1", "./assets/json/levels/level1.json");
 	}
 
   create() {
@@ -29,7 +31,8 @@ class preloader extends Phaser.Scene {
     })
     if(localStorage.getItem("knife") == undefined)
       localStorage.setItem("knife", 1)
-
+    if (localStorage.getItem("lastLevel") == undefined)
+      localStorage.setItem("lastLevel", 0);
     this.scene.start("menu");
   }
 }

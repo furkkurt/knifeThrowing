@@ -1,11 +1,13 @@
-class tutorial extends Phaser.Scene{
+class level extends Phaser.Scene{
   constructor(){
-    super("tutorial")
+    super("level")
   }
   create(){
+    if(localStorage.getItem("currentLevel") == undefined)
+      localStorage.setItem("currentLevel", localStorage.getItem("lastLevel"));
     //Create tilemap and layers
     this.map = this.make.tilemap({
-      key: "tutorial",
+      key: localStorage.getItem("currentLevel"),
       tileWidth: 16,
       tileHeight: 16
     });
@@ -91,10 +93,8 @@ class tutorial extends Phaser.Scene{
       this.screen.on("pointerup", ()=>{
         this.setForces.paused = true;
         this.increaseRotSpeed.paused = false;
-        if(this.tutorText != undefined)
-          this.tutorText.setVisible(false);
-      this.viusalValue.strokeColor = 0xff0000;
-      this.viusalValue.strokeAlpha = 0;
+        this.viusalValue.strokeColor = 0xff0000;
+        this.viusalValue.strokeAlpha = 0;
       });
     }})
 
@@ -121,7 +121,7 @@ class tutorial extends Phaser.Scene{
           this.time.addEvent({
             delay: 1000,
             callback:() =>{
-              this.scene.start("tutorial");
+              this.scene.start("level");
             }
           })
         }
@@ -151,24 +151,22 @@ class tutorial extends Phaser.Scene{
             }
           })
         };
-        //Don't complete the level if the collision takes place in tutorial scene
-        if(!this.tutor)
-          this.levelCompleteFade.paused = false;
         this.levelComplete.setVisible(true);
+        this.levelCompleteFade.paused = false;
       } else {
         this.sound.play("blop");
       }
     });
 
     //Level Complete
-    this.completeText1 = this.add.text(220, 420, "YOU WON").setScrollFactor(0).setScale(.2).setDepth(1.5);
+    this.completeText1 = this.add.text(220, 420, "KACHOW!").setScrollFactor(0).setScale(.2).setDepth(1.5);
       //Replay current level
     this.completeText2 = this.add.text(200, 430, "PLAY AGAIN").setScrollFactor(0).setScale(.2).setDepth(1.5).setInteractive();
     this.completeText2.on("pointerdown", () => {
       this.time.addEvent({
         delay: 500,
         callback:() =>{
-          this.scene.start("tutorial")
+          this.scene.start("level")
         }
       })
     });
@@ -179,7 +177,7 @@ class tutorial extends Phaser.Scene{
         delay: 500,
         callback:() =>{
           localStorage.setItem("lastLevel", parseInt(localStorage.getItem("lastLevel"))+1)
-          this.scene.start("level")
+          this.scene.start("level") 
         }
       })
     });
@@ -198,103 +196,6 @@ class tutorial extends Phaser.Scene{
       }, repeat: 100, paused: true
     })
 
-    //Tutorial 
-    if(localStorage.getItem("tutorial") == undefined){
-      this.tutorText = this.add.text(189, 380, "").setDepth(1.4).setScale(.2).setScrollFactor(0);
-      this.tutorContext = "Welcome to the island! Your goal here\nis to shoot that log over there.";
-      this.tutorContext2 = "It won't always be placed as simple\nas it is now.";
-      this.tutorContext3 = "There are three important values you\nmust think of when throwing a knife";
-      this.tutorContext4 = "First value is your rotation speed,\nit shows how fast you knife rotates";
-      this.tutorContext5 = "Second one is your speed on X axis and\nthe last one is your speed on Y axis.";
-      this.tutorContext6 = "When throwing a knife, you first think\nof the speed you'll give to it\n(move the mouse around to change\nyour speed values) And after\nsetting the speed and angle in your\nmind you have to give the blade\ncorrect amount of flips\n(hold your mouse/finger down to\nincrease the rotation speed and\nrelease when you reach the\nvalue of your choice)";
-      this.i = 0;
-      this.tutor = true;
-      this.time.addEvent({delay: 1000, callback:() =>{
-        //Text 1
-        this.time.addEvent({delay: 30, callback:() =>{
-          this.tutorText.text += this.tutorContext.charAt(this.i);
-          this.i++;
-        },repeat: this.tutorContext.length});
-        //Camera focus
-        this.time.addEvent({delay: 5000, callback:() =>{
-          this.cameras.main.startFollow(this.player);
-        }});
-        //Text 2
-        this.time.addEvent({delay: 6000, callback:() =>{
-          this.tutorText.setText("");
-          this.i = 0;
-          this.time.addEvent({ delay: 30, callback:() =>{
-            this.tutorText.text += this.tutorContext2.charAt(this.i);
-            this.i++;
-          }, repeat: this.tutorContext2.length});
-        }});
-        //Text 3
-        this.time.addEvent({delay: 9000, callback:() =>{
-          this.tutorText.setText("");
-          this.i = 0;
-          this.time.addEvent({
-            delay: 30, callback:() =>{
-              this.tutorText.text += this.tutorContext3.charAt(this.i);
-              this.i++;
-          }, repeat: this.tutorContext3.length});
-        }});
-        //Text 4
-        this.time.addEvent({delay: 13000, callback:() =>{
-          this.sound.play("swosh", {volume:1.5});
-          this.tutorText.y += 5;
-          this.rotSpeedText.setVisible(true);
-          this.tutorText.setText("");
-          this.i = 0;
-          this.time.addEvent({
-            delay: 30, callback:() =>{
-              this.tutorText.text += this.tutorContext4.charAt(this.i);
-              this.i++;
-          }, repeat: this.tutorContext4.length});
-        }});
-        //Text 5
-        this.time.addEvent({delay: 19000, callback:() =>{
-          this.sound.play("swosh", {volume:1.5});
-          this.tutorText.y += 5;
-          this.xSpeedText.setVisible(true);
-          this.time.addEvent({delay: 500, callback:() =>{
-            this.sound.play("swosh", {volume:1.5});
-            this.tutorText.y += 5;
-            this.ySpeedText.setVisible(true);   
-          }});
-          this.tutorText.setText("");
-          this.i = 0;
-          this.time.addEvent({delay: 1000,callback:() =>{
-            this.time.addEvent({
-              delay: 30, callback:() =>{
-                this.tutorText.text += this.tutorContext5.charAt(this.i);
-                this.i++;
-            }, repeat: this.tutorContext5.length});
-          }})
-        }});
-        //Text 6
-        this.time.addEvent({delay: 23000, callback:() =>{
-          this.tutorText.setText("");
-          this.i = 0;
-          this.time.addEvent({
-            delay: 30, callback:() =>{
-              this.tutorText.text += this.tutorContext6.charAt(this.i);
-              this.i++;
-          }, repeat: this.tutorContext6.length});
-          this.endTutorial();
-            }});
-        }
-      });
-  
-      //Various settings for tutorial scene
-      this.setForces.paused = true;
-      this.screen.visible = this.xSpeedText.visible = this.ySpeedText.visible = this.rotSpeedText.visible = this.screen.visible = false;
-      this.rotSpeed = .225;
-      this.xSpeed = 400;
-      this.ySpeed = 60;
-      this.throw();
-      this.levelCompleteBox.setDepth(-1);
-      this.levelComplete.setDepth(-1);
-    }
   }
   update(){
     //Display values
@@ -304,22 +205,7 @@ class tutorial extends Phaser.Scene{
 
     //Restart level if knife gets out of borders
     if(this.knife.x<0 || this.knife.x>320)
-      this.scene.start("tutorial");
-  }
-  endTutorial(){
-    //Change values to defaults to end the tutorial segment
-    this.tutor = false;
-    this.screen.visible = true;
-    this.levelCompleteFade.repeat = 1;
-    this.setForces.paused = false;
-    this.xSpeed = this.ySpeed = this.rotSpeed = 0;
-    this.knife.x = this.player.x+17;
-    this.knife.y = this.player.y+22;
-    this.levelCompleteBox.alpha = 0;
-    this.levelComplete.setVisible(false);
-    this.levelCompleteBox.setDepth(1.45);
-    this.levelComplete.setDepth(1.46);
-    localStorage.setItem("tutorial", true);
+      this.scene.start("level");
   }
   throw(){
     this.player.play("throw");

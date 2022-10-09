@@ -21,7 +21,12 @@ class levels extends Phaser.Scene{
       eval("this.level"+i+"But = this.add.text(60, "+i*100+", 'Level "+i+"').setScale(4).setInteractive()");
       if(this.level0But.text == "Level 0")
         this.level0But.text = "Tutorial";
-      eval("this.level"+i+"But.on('pointerdown', () => {this.scene.start(this.level"+i+"But.text.toLowerCase())})");
+      if(i==0)
+        eval("this.level0But.on('pointerdown', () => {this.scene.start('tutorial')})");
+      else{
+        eval("localStorage.setItem('currentLevel', '"+i+"')");
+        eval("this.level"+i+"But.on('pointerdown', () => {this.scene.start('level')})");
+      }
     }
   }
 }
