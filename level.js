@@ -21,7 +21,7 @@ class level extends Phaser.Scene{
     this.bgLayer = this.map.createLayer("bgLayer", this.tileSet);
 
     //Player
-    this.player = this.physics.add.sprite(3*16, 5*16,"locke").setDepth(1.2).setOrigin(0);
+    this.player = this.physics.add.sprite(3*16, (this.map.height-5)*16,"locke").setDepth(1.2).setOrigin(0);
     this.physics.add.collider(this.player, this.groundLayer);
 
     //Get knife from local storage
@@ -39,13 +39,25 @@ class level extends Phaser.Scene{
     
     //Create tides
     for (let i=0; i<(this.bgLayer.width/16); i++){
-      eval("this.add.sprite("+i*16+", 5.25*16, 'tide').play('tide').setOrigin(0)");
+      eval("this.add.sprite("+i*16+", (this.map.height-4.75)*16, 'tide').play('tide').setOrigin(0)");
     }
 
     //Camera
-    this.cameras.main.setZoom(6);
-    this.cameras.main.startFollow(this.player);   
-
+    this.cameras.main.startFollow(this.player); 
+    this.cameras.main.setZoom(1.75);
+    this.cameras.main.x -= 595;
+    this.cameras.main.width = 1215;
+    this.time.addEvent({delay: 1000,callback:() =>{
+      this.time.addEvent({
+        delay: 10,
+        callback:() =>{
+          this.cameras.main.zoom += .05
+          this.cameras.main.x += 7;
+          this.cameras.main.width -= 9
+        }, repeat: 84
+      })
+    }})
+    
     //Value texts
     this.rotSpeedText = this.add.text(220, 375, "Rotation Speed: " + this.rotSpeed).setDepth(1.4).setScale(.2).setScrollFactor(0);
     this.xSpeedText = this.add.text(220, 380, "X Axis Speed: " + this.xSpeed).setDepth(1.4).setScale(.2).setScrollFactor(0);
@@ -59,8 +71,8 @@ class level extends Phaser.Scene{
       callback:() =>{
         this.viusalValue.destroy();
         this.viusalValue = this.add.line(0,0,game.input.activePointer.worldX*2,game.input.activePointer.worldY,this.knife.x, this.knife.y ,0x000000, .5).setDepth(1.5);
-        this.xSpeed = ((this.player.x - game.input.activePointer.x)+200)*this.weight*8;
-        this.ySpeed = ((game.input.activePointer.y - this.player.y)-400)*this.weight;
+        this.xSpeed = ((this.player.x - game.input.activePointer.x)+82)*this.weight*8*(this.map.width/20);
+        this.ySpeed = ((game.input.activePointer.y - this.player.y)-504)*this.weight*2*(this.map.height/10);
       }, loop: true, paused: true
     });
     this.increaseRotSpeed = this.time.addEvent({
@@ -75,7 +87,7 @@ class level extends Phaser.Scene{
 
     //Invisible interactive object
     this.screen = this.add.rectangle(0,0,450,900,"black").setOrigin(0).setInteractive().setScrollFactor(0).setDepth(2);
-    this.screen.alpha = 0.01;
+    this.screen.alpha = .01;
     //Pointer down (set x and y velocities and start increasing rotation speed value)
     this.screen.on("pointerdown", () => {
       if(!this.setForces.paused || this.viusalValue.strokeColor==0x000000){
@@ -108,18 +120,23 @@ class level extends Phaser.Scene{
     });
   
     //Knife dropping to gorund layer event
+    this.blop = false
     this.physics.add.collider(this.knife, this.groundLayer, () => {
+      if(this.blop = false){
+        this.sound.play("blop")
+        this.blop = true;
+      }
       this.knife.setVelocity(0); 
       this.rotateKnife.paused = true;
       if(this.knife.rotation>2.3 || this.knife.rotation<-0.3){
         this.knife.rotation = 0;
       }
       this.time.addEvent({
-        delay: 500,
+        delay: 250,
         callback:() =>{
           this.cameras.main.startFollow(this.player);
           this.time.addEvent({
-            delay: 1000,
+            delay: 500,
             callback:() =>{
               this.scene.start("level");
             }
@@ -176,7 +193,12 @@ class level extends Phaser.Scene{
       this.time.addEvent({
         delay: 500,
         callback:() =>{
-          localStorage.setItem("lastLevel", parseInt(localStorage.getItem("lastLevel"))+1)
+          if(localStorage.getItem("lastLevel") == localStorage.getItem("currentLevel")){
+            localStorage.setItem("lastLevel", parseInt(localStorage.getItem("lastLevel"))+1)
+            localStorage.setItem("currentLevel", localStorage.getItem("lastLevel"));
+          }
+          else 
+            localStorage.setItem("currentLevel", parseInt(localStorage.getItem("currentLevel"))+1);
           this.scene.start("level") 
         }
       })
