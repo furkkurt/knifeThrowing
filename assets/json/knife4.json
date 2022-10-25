@@ -1,0 +1,24 @@
+{ "frames": {
+   "0": {
+    "frame": { "x": 32, "y": 118, "w": 48, "h": 10 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 32, "y": 118, "w": 48, "h": 10 },
+    "sourceSize": { "w": 48, "h": 10 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "https://github.com/LibreSprite/LibreSprite/",
+  "version": "1.0",
+  "image": "/home/furkan/Documents/projects/phaser/knifeThrower/assets/images/tile.png",
+  "format": "RGBA8888",
+  "size": { "w": 128, "h": 128 },
+  "scale": "1",
+  "frameTags": [
+  ],
+  "layers": [
+   { "name": "Layer 1", "opacity": 255, "blendMode": "normal" }
+  ]
+ }
+}

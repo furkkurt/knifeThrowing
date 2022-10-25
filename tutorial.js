@@ -45,9 +45,9 @@ class tutorial extends Phaser.Scene{
     this.cameras.main.startFollow(this.player);   
 
     //Value texts
-    this.rotSpeedText = this.add.text(220, 375, "Rotation Speed: " + this.rotSpeed).setDepth(1.4).setScale(.2).setScrollFactor(0);
-    this.xSpeedText = this.add.text(220, 380, "X Axis Speed: " + this.xSpeed).setDepth(1.4).setScale(.2).setScrollFactor(0);
-    this.ySpeedText = this.add.text(220,385,"Y Axis Speed: " + this.ySpeed).setDepth(1.4).setScale(.2).setScrollFactor(0);
+    this.rotSpeedText = this.add.text(223, 375, "Rotation Speed: " + this.rotSpeed, {fontFamily: "Minecraft"}).setDepth(1.4).setScale(.24).setScrollFactor(0);
+    this.xSpeedText = this.add.text(223, 380, "X Axis Speed: " + this.xSpeed, {fontFamily: "Minecraft"}).setDepth(1.4).setScale(.24).setScrollFactor(0);
+    this.ySpeedText = this.add.text(223,385,"Y Axis Speed: " + this.ySpeed, {fontFamily: "Minecraft"}).setDepth(1.4).setScale(.24).setScrollFactor(0);
 
     //Get values from player
     this.rotSpeed = this.xSpeed = this.ySpeed = 0;
@@ -57,8 +57,8 @@ class tutorial extends Phaser.Scene{
       callback:() =>{
         this.viusalValue.destroy();
         this.viusalValue = this.add.line(0,0,game.input.activePointer.worldX*2,game.input.activePointer.worldY,this.knife.x, this.knife.y ,0x000000, .5).setDepth(1.5);
-        this.xSpeed = ((this.player.x - game.input.activePointer.x)+200)*this.weight*8;
-        this.ySpeed = ((game.input.activePointer.y - this.player.y)-400)*this.weight;
+        this.xSpeed = ((this.player.x - game.input.activePointer.x + (this.map.width/16 * 100) - 42))*this.weight*8;
+        this.ySpeed = ((game.input.activePointer.y - this.player.y -(350 + ((this.map.height/16)*215))))*this.weight*2;
       }, loop: true, paused: true
     });
     this.increaseRotSpeed = this.time.addEvent({
@@ -138,7 +138,7 @@ class tutorial extends Phaser.Scene{
         this.knife.setGravity(0);
         this.sound.play("stick");
         if(this.knife.rotation<.2 && this.knife.rotation>-.2){
-          this.perfectText = this.add.text(188, 400, "PERFECT!", {color: "yellow"}).setScrollFactor(0).setDepth(1.5);
+          this.perfectText = this.add.text(188, 400, "PERFECT!", {color: "yellow", fontFamily: "Minecraft", fontSize: "16px"}).setScale(.91).setScrollFactor(0).setDepth(1.5);
           this.time.addEvent({
             delay: 2000,
             callback:() =>{
@@ -161,9 +161,9 @@ class tutorial extends Phaser.Scene{
     });
 
     //Level Complete
-    this.completeText1 = this.add.text(220, 420, "YOU WON").setScrollFactor(0).setScale(.2).setDepth(1.5);
+    this.completeText1 = this.add.text(206, 425, "KACHOW!", {fontFamily:"Minecraft", color: "lime"}).setScrollFactor(0).setScale(.5).setDepth(1.5);
       //Replay current level
-    this.completeText2 = this.add.text(200, 430, "PLAY AGAIN").setScrollFactor(0).setScale(.2).setDepth(1.5).setInteractive();
+    this.completeText2 = this.add.text(202, 445, "PLAY AGAIN", {fontFamily:"Minecraft"}).setScrollFactor(0).setScale(.5).setDepth(1.5).setInteractive();
     this.completeText2.on("pointerdown", () => {
       this.time.addEvent({
         delay: 500,
@@ -173,7 +173,7 @@ class tutorial extends Phaser.Scene{
       })
     });
       //Start next level
-    this.completeText3 = this.add.text(230, 430, "NEXT LEVEL").setScrollFactor(0).setScale(.2).setDepth(1.5).setInteractive();
+    this.completeText3 = this.add.text(200, 465, "NEXT LEVEL", {fontFamily:"Minecraft"}).setScrollFactor(0).setScale(.5).setDepth(1.5).setInteractive();
     this.completeText3.on("pointerdown", () => {
       this.time.addEvent({
         delay: 500,
@@ -200,13 +200,13 @@ class tutorial extends Phaser.Scene{
 
     //Tutorial 
     if(localStorage.getItem("tutorial") == undefined){
-      this.tutorText = this.add.text(189, 380, "").setDepth(1.4).setScale(.2).setScrollFactor(0);
+      this.tutorText = this.add.text(189, 380, "", {fontFamily: "Minecraft", fontSize: "16px"}).setScale(.235).setDepth(1.4).setScrollFactor(0);
       this.tutorContext = "Welcome to the island! Your goal here\nis to shoot that log over there.";
       this.tutorContext2 = "It won't always be placed as simple\nas it is now.";
       this.tutorContext3 = "There are three important values you\nmust think of when throwing a knife";
       this.tutorContext4 = "First value is your rotation speed,\nit shows how fast you knife rotates";
       this.tutorContext5 = "Second one is your speed on X axis and\nthe last one is your speed on Y axis.";
-      this.tutorContext6 = "When throwing a knife, you first think\nof the speed you'll give to it\n(move the mouse around to change\nyour speed values) And after\nsetting the speed and angle in your\nmind you have to give the blade\ncorrect amount of flips\n(hold your mouse/finger down to\nincrease the rotation speed and\nrelease when you reach the\nvalue of your choice)";
+      this.tutorContext6 = "When throwing a knife, you first think\nof the speed you'll give to it\n[move the mouse around to change\nyour speed values] And after\nsetting the speed and angle in your\nmind you have to give the blade\ncorrect amount of flips\n[hold your mouse/finger down to\nincrease the rotation speed and\nrelease when you reach the\nvalue of your choice]";
       this.i = 0;
       this.tutor = true;
       this.time.addEvent({delay: 1000, callback:() =>{
@@ -311,7 +311,6 @@ class tutorial extends Phaser.Scene{
     this.tutor = false;
     this.screen.visible = true;
     this.levelCompleteFade.repeat = 1;
-    this.setForces.paused = false;
     this.xSpeed = this.ySpeed = this.rotSpeed = 0;
     this.knife.x = this.player.x+17;
     this.knife.y = this.player.y+22;
