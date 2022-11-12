@@ -26,15 +26,15 @@ class preloader extends Phaser.Scene {
     this.load.audio("apple", "./assets/audio/apple.mp3");
     
     //preload all levels
-    for(let i = 0; i<20; i++)
+    for(let i = 0; i<23; i++)
       eval("this.load.tilemapTiledJSON('"+(i+1)+"', './assets/json/levels/level"+(i+1)+".json')");
 	}
 
   create() {
     this.anims.create({
       key: "throw",
-      frameRate: 2,
-      frames: [{key:"locke", frame:"0"}, {key:"locke", frame:"1"}, {key:"locke", frame:"2"}, {key:"locke", frame:"3"}, {key:"locke", frame:"4"}, {key:"locke", frame:"5"}, {key:"locke", frame:"6"}, {key:"locke", frame:"6"}, {key:"locke", frame:"2"}, {key:"locke", frame:"1"}, {key:"locke", frame:"0"}],
+      frameRate: 4,
+      frames: [{key:"locke", frame:"0"}, {key:"locke", frame:"2"}, {key:"locke", frame:"3"}, {key:"locke", frame:"4"}, {key:"locke", frame:"5"}, {key:"locke", frame:"6"}, {key:"locke", frame:"6"}, {key:"locke", frame:"6"}, {key:"locke", frame:"6"}, {key:"locke", frame:"3"}, {key:"locke", frame:"0"}],
       repeat: 0
     });
     this.anims.create({
@@ -73,8 +73,8 @@ class preloader extends Phaser.Scene {
     */
     if(localStorage.getItem("knife") == undefined)
       localStorage.setItem("knife", 1)
-    if (localStorage.getItem("lastLevel") == undefined)
-      localStorage.setItem("lastLevel", 0);
+    if(localStorage.getItem("lastLevel") == undefined)
+      localStorage.setItem("lastLevel", 50);
     this.scene.start("menu");
   }
 }

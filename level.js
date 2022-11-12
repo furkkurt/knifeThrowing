@@ -3,6 +3,7 @@ class level extends Phaser.Scene{
     super("level")
   }
   create(){
+    //Back to main menu
     if(localStorage.getItem("currentLevel") == undefined)
       localStorage.setItem("currentLevel", localStorage.getItem("lastLevel"));
     //Create tilemap
@@ -15,14 +16,18 @@ class level extends Phaser.Scene{
 
     //get starting position
     this.startingPosition;
-    if(parseInt(localStorage.getItem("currentLevel")) <= 10 || parseInt(localStorage.getItem("currentLevel"))>19)
+    if(parseInt(localStorage.getItem("currentLevel")) <= 10)
       this.startingPosition = this.map.height-5;
     else if(parseInt(localStorage.getItem("currentLevel")) > 10 && parseInt(localStorage.getItem("currentLevel")) <= 19)
+      this.startingPosition = -2;
+    else if(parseInt(localStorage.getItem("currentLevel")) > 19 && parseInt(localStorage.getItem("currentLevel")) <= 22)
+      this.startingPosition = this.map.height-5;
+    else if(parseInt(localStorage.getItem("currentLevel")) > 22 && parseInt(localStorage.getItem("currentLevel")) <= 29)
       this.startingPosition = -2;
   
     //Player
     this.player = this.physics.add.sprite(3*16, this.startingPosition*16,"locke").setDepth(1.2).setOrigin(0);
-   
+ 
     //Set weight and scale by knife
     this.weights = [0.5, 0.52, 0.42, 0.44, 0.48, 0.46];
     this.scales = [.25, .2, .4, .26, .4, .45];
@@ -61,13 +66,13 @@ class level extends Phaser.Scene{
       //this.knife.setVelocity(5,0);
       this.knife.setActive(false);
       //this.knife.x += 12;
-      this.knife.setGravityY(200);
+      this.knife.setGravityY(0);
       this.time.addEvent({
-        delay: 500,
+        delay: 200,
         callback:() =>{
           this.knife.setVelocity(velox*3, veloy);
           this.knife.body.setOffset(0);
-          this.knife.setGravity(0);
+          this.knife.body.setGravityY(200);
         }
       })
       ivySpr.play("ivyVertAnims");
@@ -89,11 +94,11 @@ class level extends Phaser.Scene{
       //this.knife.y += 12;
       this.knife.setGravity(0);
       this.time.addEvent({
-        delay: 500,
+        delay: 200,
         callback:() =>{
           this.knife.setVelocity(velox, veloy*3);
           this.knife.body.setOffset(0);
-          this.knife.setGravityY(200);
+          this.knife.body.setGravityY(200);
         }
       })
       ivySpr.play("ivyAnims");
@@ -113,6 +118,14 @@ class level extends Phaser.Scene{
     this.waterfallSpritesPlaced = [];
     this.waterfallLayer = this.map.createLayer("waterfallLayer", this.tileSet);
     this.waterfallLayer.setCollisionByExclusion([-1]);
+    //waterfall time event
+    this.waterfallEvent = this.time.addEvent({
+      delay: 100,
+      callback:() =>{
+        this.sound.play("splash");
+      }, paused: true, loop: false
+    });
+
     this.physics.add.collider(this.large, this.waterfallLayer, (p, waterfall) => {
       if(!this.waterfallSpritesPlaced.includes(waterfall.x+""+waterfall.y)){
         this.waterfallSpritesPlaced.push(waterfall.x+""+waterfall.y);
@@ -120,11 +133,11 @@ class level extends Phaser.Scene{
         while (y<this.map.height*16){
           this.waterfallSpr = this.physics.add.sprite(waterfall.x*16+8,y,"waterfall").play("waterfallBody");
           this.physics.add.overlap(this.waterfallSpr, this.knife, () => {
-            this.knife.body.velocity.x /= 2;
             this.knife.x += 6;
             this.knife.alpha = .4;
-            this.sound.play("splash");
-            this.knife.body.setOffset(100,0);
+        this.knife.body.velocity.x /= 2;
+            this.waterfallEvent.paused = false;
+            this.knife.body.setOffset(9999,0);
             this.dropsIn = this.add.sprite(this.knife.x, this.knife.y, "drops").setDepth(99).setScale(2);
             //this.dropsIn.play("drops");
             this.time.addEvent({
@@ -154,26 +167,34 @@ class level extends Phaser.Scene{
     //Apple layer
     this.appleLayer = this.map.createLayer("appleLayer", this.tileSet).setDepth(1.105);
     this.appleLayer.setCollisionByExclusion([-1]);
+
     this.physics.add.collider(this.large, this.appleLayer, (k, apple) => {
       apple.setVisible(false);
-      this.apple = this.physics.add.sprite(apple.x*16+12,apple.y*16+12,"apple").setScale(.25).setDepth(1.16);
+      this.apple = this.physics.add.sprite(apple.x*16+12,apple.y*16+16,"apple").setScale(.25).setDepth(1.16);
       this.large.setVelocityX(1000);
-      
-      this.appleStick = this.time.addEvent({
-          delay: 10,
+      /*
+      this.setAppleRot = this.time.addEvent({
+          delay: 100,
           callback:() =>{
             this.apple.x = this.knife.x;
             this.apple.y = this.knife.y;
             this.apple.rotation = this.knife.rotation;
           }, loop: true, paused: true
         })
-      
+        */
+      this.setAppleRot = false;
       //Apple knife collider
-      this.physics.add.collider(this.knife, this.apple, () => {
-        if(this.appleStick.paused)
+      this.physics.add.overlap(this.knife, this.apple, () => {
+        if(!this.setAppleRot && !this.stabbed){
           this.sound.play("apple");
+          if(!localStorage.getItem("appledLevels").includes(localStorage.getItem("currentLevel")+"_")){
+            localStorage.setItem("apples", parseInt(localStorage.getItem("apples"))+1);
+            localStorage.setItem("appledLevels", localStorage.getItem("appledLevels")+localStorage.getItem("currentLevel")+"_");
+          }
+        }
         this.apple.setActive(false);
-        this.appleStick.paused = false;
+        if(!this.stabbed)
+          this.setAppleRot = true;
       });
     });
 
@@ -228,8 +249,8 @@ class level extends Phaser.Scene{
       callback:() =>{
         this.viusalValue.destroy();
         this.viusalValue = this.add.line(0,0,game.input.activePointer.worldX*2,game.input.activePointer.worldY,this.knife.x, this.knife.y ,0x000000, .5).setDepth(1.5);
-        this.xSpeed = ((this.player.x - game.input.activePointer.x + (this.map.width/16 * 100) - 42))*this.weight*8;
-        this.ySpeed = ((game.input.activePointer.y - this.player.y -(350 + ((this.map.height/16)*215))))*this.weight*2;
+        this.xSpeed = (1050 - game.input.activePointer.x*8)*this.weight;
+        this.ySpeed = (game.input.activePointer.y*2 - 1150)*this.weight;
       }, loop: true, paused: true
     });
     this.increaseRotSpeed = this.time.addEvent({
@@ -286,6 +307,7 @@ class level extends Phaser.Scene{
       this.knife.setVelocity(0); 
       this.rotateKnife.paused = true;
       if(this.knife.rotation>2.3 || this.knife.rotation<-0.3){
+        if(localStorage.getItem("knife") == "1" || localStorage.getItem("knife") == "2") || localStorage.getItem("knife") == "4")
         this.knife.rotation = 0;
       }
       this.time.addEvent({
@@ -340,6 +362,9 @@ class level extends Phaser.Scene{
       "left", //18
       "left", //19
       "left", //20
+      "left", //21
+      "up", //22
+      "right" //23
     ];
     this.direction = this.levelDirections[parseInt(localStorage.getItem("currentLevel"))-1];
  
@@ -363,14 +388,13 @@ class level extends Phaser.Scene{
         console.log(this.stabbes);
       }, loop: true
     })*/
-
+    
+    this.stabbed = false;
     this.physics.add.collider(this.knife, this.logLayer, (knife, log) => {
       if(this.direction == "left")
         this.knife.x += 3;
       else if(this.direction == "right")
         this.knife.x -= 3;
-      this.stabbed = false;
-      
       //Check if it's stabbed
       if(this.direction == "up" && (knife.rotation<2.2+this.startRot/2 && knife.rotation>.2+this.startRot/2))
         this.stabbed = true;
@@ -380,11 +404,22 @@ class level extends Phaser.Scene{
         this.stabbed = true;
       
       if(this.stabbed){
+        if(!localStorage.getItem("kachowedLevels").includes(localStorage.getItem("currentLevel")+"_"))
+          localStorage.setItem("kachowedLevels", localStorage.getItem("kachowedLevels")+localStorage.getItem("currentLevel")+"_");
         this.rotateKnife.paused = true;
         this.knife.setVelocity(0);
         this.knife.setGravity(0);
+        this.apple.setVelocity(0);
+        this.apple.setGravity(0);
+        if(this.setAppleRot){
+          this.apple.x = this.knife.x+6;
+          this.apple.y = this.knife.y;
+          this.setAppleRot = false;
+        }
         this.sound.play("stick");
         if((this.knife.rotation<.1 && this.knife.rotation>-.1) || (this.knife.rotation<1.8 && this.knife.rotation>1.6)){
+          if(!localStorage.getItem("perfectedLevels").includes(localStorage.getItem("currentLevel")+"_"))
+            localStorage.setItem("perfectedLevels", localStorage.getItem("perfectedLevels")+localStorage.getItem("currentLevel")+"_");
           this.perfectText = this.add.text(188, 400, "PERFECT!", {color: "yellow", fontFamily: "Minecraft", fontSize: "16px"}).setScale(.91).setScrollFactor(0).setDepth(1.5);
           this.time.addEvent({
             delay: 2000,
@@ -408,29 +443,19 @@ class level extends Phaser.Scene{
     this.completeText1 = this.add.text(206, 425, "KACHOW!", {fontFamily:"Minecraft", color: "lime"}).setScrollFactor(0).setScale(.5).setDepth(1.5);
       //Replay current level
     this.completeText2 = this.add.text(202, 445, "PLAY AGAIN", {fontFamily:"Minecraft"}).setScrollFactor(0).setScale(.5).setDepth(1.5).setInteractive();
-    this.completeText2.on("pointerdown", () => {
-      this.time.addEvent({
-        delay: 500,
-        callback:() =>{
-          this.scene.start("level")
-        }
-      })
+    this.completeText2.on("pointerup", () => {
+      this.scene.start("level");
     });
       //Start next level
     this.completeText3 = this.add.text(200, 465, "NEXT LEVEL", {fontFamily:"Minecraft"}).setScrollFactor(0).setScale(.5).setDepth(1.5).setInteractive();
-    this.completeText3.on("pointerdown", () => {
-      this.time.addEvent({
-        delay: 500,
-        callback:() =>{
-          if(localStorage.getItem("lastLevel") == localStorage.getItem("currentLevel")){
-            localStorage.setItem("lastLevel", parseInt(localStorage.getItem("lastLevel"))+1)
-            localStorage.setItem("currentLevel", localStorage.getItem("lastLevel"));
-          }
-          else 
-            localStorage.setItem("currentLevel", parseInt(localStorage.getItem("currentLevel"))+1);
-          this.scene.start("level") 
-        }
-      })
+    this.completeText3.on("pointerup", () => {
+      if(localStorage.getItem("lastLevel") == localStorage.getItem("currentLevel")){
+        localStorage.setItem("lastLevel", parseInt(localStorage.getItem("lastLevel"))+1)
+        localStorage.setItem("currentLevel", localStorage.getItem("lastLevel"));
+      }
+      else 
+        localStorage.setItem("currentLevel", parseInt(localStorage.getItem("currentLevel"))+1);
+      this.scene.start("level") 
     });
     this.levelComplete = this.add.group();
     this.levelComplete.add(this.completeText1);
@@ -446,6 +471,13 @@ class level extends Phaser.Scene{
         this.levelCompleteBox.alpha += 0.01
       }, repeat: 100, paused: true
     })
+
+    this.backBut = this.add.text(252, 375, "<=", {fontFamily: "Minecraft", fontSize: "16px"}).setScrollFactor(0).setScale(.5).setDepth(100).setInteractive();
+    this.backBut.on("pointerdown", () => {
+      this.scene.start("menu");
+    });
+
+
   }
   update(){
     //Display values
@@ -456,6 +488,12 @@ class level extends Phaser.Scene{
     //Restart level if knife gets out of borders
     if((this.knife.x<0 || this.knife.x>320) && !this.stabbed)
       this.scene.start("level");
+
+    if(this.setAppleRot == true){
+      this.apple.x = this.knife.x+8;
+      this.apple.y = this.knife.y;
+      this.apple.rotation = this.knife.rotation;
+    }
   }
   throw(){
     //Custom values for testing
@@ -468,24 +506,25 @@ class level extends Phaser.Scene{
     this.player.play("throw");
     this.viusalValue.setVisible(false);
     this.time.addEvent({
-      delay: 1500,
+      delay: 500,
       callback:() =>{
         this.knife.setRotation(this.startRot*4-1.5);
+        this.knife.x --;
         this.knife.y -= 8+(this.startY-22);
         this.time.addEvent({
-          delay: 500,
+          delay: 250,
           callback:() =>{
             this.knife.setRotation(this.startRot*4-3);
             this.knife.y -= 6;
-            this.knife.x -= 10+(17-this.startX);
+            this.knife.x -= 9+(17-this.startX);
             this.time.addEvent({
-              delay: 500,
+              delay: 250,
               callback:() =>{
                 this.knife.setRotation(this.startRot*4-4.5);
-                this.knife.x -= 8+(17-this.startX);
-                this.knife.y -= this.startY-22;
+                this.knife.x -= 6+(17-this.startX);
+                this.knife.y -= this.startY-25;
                 this.time.addEvent({
-                  delay: 500,
+                  delay: 250,
                   callback:() =>{
                     this.sound.play("swosh");
                     this.cameras.main.startFollow(this.knife);

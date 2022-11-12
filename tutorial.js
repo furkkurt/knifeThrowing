@@ -252,7 +252,7 @@ class tutorial extends Phaser.Scene{
           }, repeat: this.tutorContext4.length});
         }});
         //Text 5
-        this.time.addEvent({delay: 19000, callback:() =>{
+        this.time.addEvent({delay: 15000, callback:() =>{
           this.sound.play("swosh", {volume:1.5});
           this.tutorText.y += 5;
           this.xSpeedText.setVisible(true);
@@ -272,7 +272,7 @@ class tutorial extends Phaser.Scene{
           }})
         }});
         //Text 6
-        this.time.addEvent({delay: 23000, callback:() =>{
+        this.time.addEvent({delay: 24000, callback:() =>{
           this.tutorText.setText("");
           this.i = 0;
           this.time.addEvent({
