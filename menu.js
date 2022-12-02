@@ -69,19 +69,20 @@ class knives extends Phaser.Scene{
     super("knives")
   }
   create(){
+    this.shelf=this.add.sprite(0,0,"shelf").setScale(14.07).setOrigin(0);
     this.backBut = this.add.text(370, 0, "<=", {fontFamily: "Minecraft", fontSize: "72px"}).setInteractive();
     this.backBut.on("pointerdown", () => {
       this.scene.start("menu");
     });
 
     this.cameras.main.height = (parseInt(localStorage.getItem("lastLevel"))+1)*100+900;
-    this.knife1 = this.add.sprite(250,150,"knife1").setDepth(2).setScale(6).setInteractive();
-    this.knife2 = this.add.sprite(225,225,"knife2").setDepth(2).setScale(4.5).setInteractive();
-    this.knife3 = this.add.sprite(230,325,"knife3").setDepth(2).setScale(8).setRotation(1.58).setInteractive();
-    this.knife4 = this.add.sprite(250,425,"knife4").setDepth(2).setScale(6).setInteractive();
-    this.knife5 = this.add.sprite(230,525,"knife5").setDepth(2).setScale(8).setRotation(1.58).setInteractive();
-    this.knife6 = this.add.sprite(230,625,"knife6").setDepth(2).setScale(8).setRotation(1.58).setInteractive();
-    
+    this.knife1 = this.add.sprite(235,140,"knife1").setDepth(2).setScale(6).setInteractive();
+    this.knife2 = this.add.sprite(225,300,"knife2").setDepth(2).setScale(4.5).setInteractive();
+    this.knife3 = this.add.sprite(230,410,"knife3").setDepth(2).setScale(8).setRotation(1.58).setInteractive();
+    this.knife4 = this.add.sprite(250,575,"knife4").setDepth(2).setScale(6).setInteractive();
+    this.knife5 = this.add.sprite(230,685,"knife5").setDepth(2).setScale(8).setRotation(1.58).setInteractive();
+    this.knife6 = this.add.sprite(230,850,"knife6").setDepth(2).setScale(8).setRotation(1.58).setInteractive();
+    this.knife3.flipX = this.knife5.flipX = true;
     for (let i = 1; i<7; i++)
       eval("this.knife"+i+".on('pointerdown', () => {localStorage.setItem('knife', '"+i+"'); this.scene.start('menu')})");
   }

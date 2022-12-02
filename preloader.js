@@ -24,9 +24,10 @@ class preloader extends Phaser.Scene {
     this.load.atlas("drops", "./assets/images/tile.png", "./assets/json/drops.json");
     this.load.atlas("apple", "./assets/images/tile.png", "./assets/json/apple.json");
     this.load.audio("apple", "./assets/audio/apple.mp3");
+    this.load.image("shelf", "./assets/images/shelf.png");
     
     //preload all levels
-    for(let i = 0; i<23; i++)
+    for(let i = 0; i<25; i++)
       eval("this.load.tilemapTiledJSON('"+(i+1)+"', './assets/json/levels/level"+(i+1)+".json')");
 	}
 
@@ -74,7 +75,7 @@ class preloader extends Phaser.Scene {
     if(localStorage.getItem("knife") == undefined)
       localStorage.setItem("knife", 1)
     if(localStorage.getItem("lastLevel") == undefined)
-      localStorage.setItem("lastLevel", 50);
+      localStorage.setItem("lastLevel", 25);
     this.scene.start("menu");
   }
 }

@@ -23,7 +23,7 @@ class tutorial extends Phaser.Scene{
     this.physics.add.collider(this.player, this.groundLayer);
 
     //Get knife from local storage
-    this.knife = this.physics.add.sprite(this.player.x+17, this.player.y+22, "knife"+localStorage.getItem("knife")).setScale(.25).setDepth(1.15);
+    this.knife = this.physics.add.sprite(this.player.x+17, this.player.y+22, "knife4").setScale(.25).setDepth(1.15);
     this.knife.setGravity(0);
     this.knife.setBounce(1);
     
@@ -324,23 +324,23 @@ class tutorial extends Phaser.Scene{
     this.player.play("throw");
     this.viusalValue.setVisible(false);
     this.time.addEvent({
-      delay: 1500,
+      delay: 500,
       callback:() =>{
         this.knife.setRotation(-1.5);
         this.knife.y -= 8;
         this.time.addEvent({
-          delay: 500,
+          delay: 250,
           callback:() =>{
             this.knife.setRotation(-3);
             this.knife.y -= 6;
             this.knife.x -= 10;
             this.time.addEvent({
-              delay: 500,
+              delay: 250,
               callback:() =>{
                 this.knife.setRotation(-4.5);
                 this.knife.x -= 8;
                 this.time.addEvent({
-                  delay: 500,
+                  delay: 250,
                   callback:() =>{
                     this.sound.play("swosh");
                     this.cameras.main.startFollow(this.knife);

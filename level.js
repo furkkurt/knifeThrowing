@@ -307,7 +307,7 @@ class level extends Phaser.Scene{
       this.knife.setVelocity(0); 
       this.rotateKnife.paused = true;
       if(this.knife.rotation>2.3 || this.knife.rotation<-0.3){
-        if(localStorage.getItem("knife") == "1" || localStorage.getItem("knife") == "2") || localStorage.getItem("knife") == "4")
+        if((localStorage.getItem("knife") == "1" || localStorage.getItem("knife") == "2") || localStorage.getItem("knife") == "4");
         this.knife.rotation = 0;
       }
       this.time.addEvent({
@@ -490,7 +490,7 @@ class level extends Phaser.Scene{
       this.scene.start("level");
 
     if(this.setAppleRot == true){
-      this.apple.x = this.knife.x+8;
+      this.apple.x = this.knife.x;
       this.apple.y = this.knife.y;
       this.apple.rotation = this.knife.rotation;
     }
